@@ -9,15 +9,33 @@
 
     <body>
         <h1>Trivia App</h1>
-        <button id="fetch-button">Fetch Trivia Questions</button>
 
+        <!--form-->
+        <form id="trivia-form">
+            <label for="Qnum">Number of Questions:</label>
+            <input type="number" id="Qnum" name="Qnum" placeholder="10 (Max 50)" min="1" max="50" required><br>
+            
+            <label for="categories">Select a category:</label>
+            <select id="categories" name="category" required>
+                <option value="">Any Questions</option>
+            </select><br>
 
+            <label for="difficulty">Select difficulty:</label>
+            <select id="difficulty" name="difficulty" required>
+                <option value="">Any Difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select><br><br>
+
+            <input class="button" type="submit" value="Submit">
+        </form>
+
+        <!--questions-->
         <section id="all-questions">
-        <h2>All Questions</h2>
-        <div id="questions-list"></div>
+            <div id="questions-list"></div>
         </section>
 
-
-        <script src="script.js"></script>
+        <script src="script.js"></script>  
     </body>
 </html>
