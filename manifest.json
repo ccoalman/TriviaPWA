@@ -1,6 +1,6 @@
 {
-    "short_name": "TVMaze",
-    "name": "TV Maze App",
+    "short_name": "Trivia",
+    "name": "Trivia App",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
