@@ -28,7 +28,7 @@ function handleFormSubmit() {
         let difficulty = document.getElementById("difficulty").value || "";
         const apiURL = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}`;
         await fetchTrivia(apiURL);
-        form.style.display = 'none'; // Hide form during the quiz
+        form.style.display = 'none'; 
     });
 }
 
@@ -40,7 +40,7 @@ async function fetchTrivia(apiURL) {
             throw new Error("No trivia questions found.");
         }
         questionsData = data.results;
-        await preloadImages(data.results); // Preload all images before starting the quiz
+        await preloadImages(data.results); 
         displayQuestion(currentQuestionIndex);
     } catch (error) {
         console.error("Error fetching trivia:", error);
