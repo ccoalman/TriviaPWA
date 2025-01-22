@@ -1,6 +1,9 @@
 let PEXELS_API_KEY = "qOsTAa8WI9ALWQKHQbLB5lWHDGkxuaEhOyFnGRXf6MAeP5jEql5r1G3L";
 let currentQuestionIndex = 0;
 let questionsData = [];
+let timerId;
+let timeLeft = 15;
+let answerSelected = false;
 
 async function fetchCategories() {
     let url = 'https://opentdb.com/api_category.php';
@@ -23,10 +26,15 @@ function handleFormSubmit() {
     let form = document.getElementById("trivia-form");
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        let amount = document.getElementById("Qnum").value || 10;
-        let category = document.getElementById("categories").value || "";
-        let difficulty = document.getElementById("difficulty").value || "";
-        const apiURL = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}`;
+        let amount = document.getElementById("Qnum").value;
+        if (!amount) {
+            alert("Please enter the number of questions.");
+            return;
+        }
+        let category = document.getElementById("categories").value || ""; 
+        let difficulty = document.getElementById("difficulty").value || ""; 
+
+        const apiURL = `https://opentdb.com/api.php?amount=${amount}${category ? `&category=${category}` : ''}${difficulty ? `&difficulty=${difficulty}` : ''}`;
         await fetchTrivia(apiURL);
         form.style.display = 'none'; 
     });
@@ -52,7 +60,7 @@ async function preloadImages(questions) {
         fetchAndReturnImageUrl(extractKeywordsWithPriority(question.question))
     ));
     questions.forEach((question, index) => {
-        question.imageUrl = imageUrls[index]; // Attach preloaded image URL to each question
+        question.imageUrl = imageUrls[index];
     });
 }
 
@@ -61,7 +69,11 @@ async function fetchAndReturnImageUrl(query) {
     return imageData?.photos?.[0]?.src?.medium;
 }
 
-async function displayQuestion(index) {
+function displayQuestion(index) {
+    let timerElement = document.getElementById('timer');
+    timerElement.style.display = 'block'; // Show the timer when displaying a question
+    answerSelected = false; // Reset answer selection flag
+
     let questionsList = document.getElementById("questions-list");
     questionsList.innerHTML = ""; // Clear previous content
     let question = questionsData[index];
@@ -80,21 +92,47 @@ async function displayQuestion(index) {
         answerButton.innerHTML = answer;
         answerButton.className = "answer-button";
         answerButton.onclick = () => {
+            answerSelected = true; // Set the flag to true when an answer is selected
+            clearInterval(timerId);
             showFeedback(answer, question.correct_answer, questionDiv);
+            timerElement.style.display = 'none';
         };
         questionDiv.appendChild(answerButton);
     });
     questionsList.appendChild(questionDiv);
+    startTimer(timeLeft, timerElement);
 }
 
-function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
+function startTimer(duration, display) {
+    let timer = duration, seconds;
+    timerId = setInterval(function () {
+        seconds = parseInt(timer % 60, 10);
+        display.textContent = seconds;
+        if (--timer < 0) {
+            clearInterval(timerId);
+            if (!answerSelected) {
+                displayTimeOutFeedback(questionsData[currentQuestionIndex], document.querySelector('.question-card'));
+            } else {
+                nextQuestion();
+            }
+        }
+    }, 1000);
+}
+
+
+function nextQuestion() {
+    if (currentQuestionIndex < questionsData.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion(currentQuestionIndex);
+    } else {
+        showFinalScreen();
+    }
+}
+
+function displayTimeOutFeedback(question, questionDiv) {
     const feedbackDiv = document.createElement("div");
     feedbackDiv.className = "feedback-card";
-    if (selectedAnswer === correctAnswer) {
-        feedbackDiv.innerHTML = `<h2>Correct!</h2>`;
-    } else {
-        feedbackDiv.innerHTML = `<h2>Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
-    }
+    feedbackDiv.innerHTML = `<h2>Time's up!</h2><p>The correct answer was: ${question.correct_answer}</p>`;
     questionDiv.innerHTML = ""; // Clear the question content
     questionDiv.appendChild(feedbackDiv);
     const proceedButton = document.createElement("button");
@@ -110,10 +148,27 @@ function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
     questionDiv.appendChild(proceedButton);
 }
 
-function showFinalScreen() {
-    let questionsList = document.getElementById("questions-list");
-    questionsList.innerHTML = `<h2>Quiz Completed!</h2>`;
-    document.getElementById("trivia-form").style.display = 'block'; // Re-display the form for a new game
+function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "feedback-card";
+    if (selectedAnswer === correctAnswer) {
+        feedbackDiv.innerHTML = `<h2>Correct!</h2>`;
+    } else {
+        feedbackDiv.innerHTML = `<h2>Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
+    }
+    questionDiv.innerHTML = "";
+    questionDiv.appendChild(feedbackDiv);
+    const proceedButton = document.createElement("button");
+    proceedButton.innerHTML = "Next Question";
+    proceedButton.onclick = () => {
+        if (currentQuestionIndex < questionsData.length - 1) {
+            currentQuestionIndex++;
+            displayQuestion(currentQuestionIndex);
+        } else {
+            showFinalScreen();
+        }
+    };
+    questionDiv.appendChild(proceedButton);
 }
 
 function shuffleAnswers(answers) {
@@ -122,6 +177,14 @@ function shuffleAnswers(answers) {
         [answers[i], answers[j]] = [answers[j], answers[i]];
     }
     return answers;
+}
+
+function showFinalScreen() {
+    clearInterval(timerId);
+    document.getElementById('timer').style.display = 'none';
+    let questionsList = document.getElementById("questions-list");
+    questionsList.innerHTML = `<h2>Quiz Completed!</h2>`;
+    document.getElementById("trivia-form").style.display = 'block';
 }
 
 async function fetchPexelsData(search) {
@@ -152,33 +215,8 @@ function extractKeywordsWithPriority(questionText) {
 
 // Initialize functions on page load
 window.onload = function () {
+    document.getElementById('timer').style.display = 'none'; 
     fetchCategories();
     handleFormSubmit();
 };
 
-
-
-
-// install app
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  const installButton = document.getElementById('installButton');
-  installButton.style.display = 'block';
-
-  installButton.addEventListener('click', () => {
-    installButton.style.display = 'none';
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-      deferredPrompt = null;
-    });
-  });
-});  
