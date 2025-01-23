@@ -4,6 +4,7 @@ let questionsData = [];
 let timerId;
 let timeLeft = 15;
 let answerSelected = false;
+let score = 0;
 
 async function fetchCategories() {
     let url = 'https://opentdb.com/api_category.php';
@@ -148,28 +149,64 @@ function displayTimeOutFeedback(question, questionDiv) {
     questionDiv.appendChild(proceedButton);
 }
 
+// function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
+//     const feedbackDiv = document.createElement("div");
+//     feedbackDiv.className = "feedback-card";
+//     if (selectedAnswer === correctAnswer) {
+//         feedbackDiv.innerHTML = `<h2>Correct!</h2>`;
+//     } else {
+//         feedbackDiv.innerHTML = `<h2>Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
+//     }
+//     questionDiv.innerHTML = "";
+//     questionDiv.appendChild(feedbackDiv);
+//     const proceedButton = document.createElement("button");
+//     proceedButton.innerHTML = "Next Question";
+//     proceedButton.onclick = () => {
+//         if (currentQuestionIndex < questionsData.length - 1) {
+//             currentQuestionIndex++;
+//             displayQuestion(currentQuestionIndex);
+//         } else {
+//             showFinalScreen();
+//         }
+//     };
+//     questionDiv.appendChild(proceedButton);
+// }
+
 function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
     const feedbackDiv = document.createElement("div");
     feedbackDiv.className = "feedback-card";
+
+    let points = 0;
     if (selectedAnswer === correctAnswer) {
-        feedbackDiv.innerHTML = `<h2>Correct!</h2>`;
+        let timeUsed = 15 - timeLeft; // Assuming 'timeLeft' is tracked elsewhere in your code
+        if (timeUsed <= 5) {
+            points = 1000;
+        } else if (timeUsed <= 10) {
+            points = 500;
+        } else {
+            points = 200;
+        }
+        score += points; // Assuming 'score' is a variable tracking the user's score
+        feedbackDiv.innerHTML = `<h2 class="correct">Correct!</h2><p class="points">You earned ${points} points!</p>`;
     } else {
-        feedbackDiv.innerHTML = `<h2>Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
+        feedbackDiv.innerHTML = `<h2 class="wrong">Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
     }
+
     questionDiv.innerHTML = "";
     questionDiv.appendChild(feedbackDiv);
+
     const proceedButton = document.createElement("button");
     proceedButton.innerHTML = "Next Question";
-    proceedButton.onclick = () => {
+    proceedButton.onclick = function() {
         if (currentQuestionIndex < questionsData.length - 1) {
-            currentQuestionIndex++;
-            displayQuestion(currentQuestionIndex);
+            displayQuestion(++currentQuestionIndex);
         } else {
             showFinalScreen();
         }
     };
     questionDiv.appendChild(proceedButton);
 }
+
 
 function shuffleAnswers(answers) {
     for (let i = answers.length - 1; i > 0; i--) {
@@ -179,13 +216,54 @@ function shuffleAnswers(answers) {
     return answers;
 }
 
+// function showFinalScreen() {
+//     clearInterval(timerId);
+//     document.getElementById('timer').style.display = 'none';
+//     let questionsList = document.getElementById("questions-list");
+//     questionsList.innerHTML = `<h2>Quiz Completed!</h2>`;
+//     document.getElementById("trivia-form").style.display = 'block';
+// }
+
+// function showFinalScreen() {
+//     clearInterval(timerId);
+//     document.getElementById('timer').style.display = 'none';
+//     let questionsList = document.getElementById("questions-list");
+//     questionsList.innerHTML = `<h2>Quiz Completed!</h2><p>Your total score: ${score}</p>`;
+//     document.getElementById("trivia-form").style.display = 'block';
+// }
+
 function showFinalScreen() {
-    clearInterval(timerId);
-    document.getElementById('timer').style.display = 'none';
+    clearInterval(timerId); // Stop any running timer
+    document.getElementById('timer').style.display = 'none'; // Hide the timer display
+
+    // Access the quiz questions list container
     let questionsList = document.getElementById("questions-list");
-    questionsList.innerHTML = `<h2>Quiz Completed!</h2>`;
-    document.getElementById("trivia-form").style.display = 'block';
+
+    // Show the completion message and total score
+    questionsList.innerHTML = `<h2>Quiz Completed!</h2><p>Your total score: ${score}</p>`;
+
+    // Create a button to reset the game
+    const resetButton = document.createElement("button");
+    resetButton.innerHTML = "Start Again";
+    resetButton.className = "reset-button"; // Optional: Assign a class for styling
+    resetButton.onclick = function() {
+        resetGame();
+    };
+
+    // Add the reset button to the screen
+    questionsList.appendChild(resetButton);
+
 }
+
+function resetGame() {
+    currentQuestionIndex = 0; // Reset the question index
+    score = 0; // Reset the score
+    questionsData = []; // Optionally clear the previous questions data
+    document.getElementById("trivia-form").style.display = 'block'; // Show the form again
+    document.getElementById("questions-list").innerHTML = ''; // Clear the questions list
+}
+
+
 
 async function fetchPexelsData(search) {
     let url = `https://api.pexels.com/v1/search?per_page=1&query=${search}`;
