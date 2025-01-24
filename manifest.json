@@ -1,7 +1,8 @@
 {
     "short_name": "Trivia",
     "name": "Trivia App",
-    "start_url": "/",
+    "start_url": "https://ccoalman.github.io/TriviaPWA/",
+    "id": "https://ccoalman.github.io/TriviaPWA/",
     "scope": "/",
     "display": "standalone",
     "background_color": "#ffffff",

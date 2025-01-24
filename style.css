@@ -25,6 +25,7 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     border: 4px solid #000000; 
 }
 
@@ -143,6 +144,7 @@ h1 {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 90%;
     max-width: 600px;
+    color: white;
 }
 
 .timer {
@@ -216,7 +218,9 @@ button:hover {
     margin-top: 5px;
 }
 
-
+#questions-list{
+    color: white;
+}
 
 @media (max-width: 600px) {
     .question-card img {
@@ -231,6 +235,16 @@ button:hover {
 
     .question-card h3 {
         font-size: 20px;
+    }
+
+    .feedback-card{
+        margin-left: auto;
+        margin-right: auto;
+        margin: 15px;
+    }
+
+    .score-card{
+        margin: 15px;
     }
 
     #trivia-form {
