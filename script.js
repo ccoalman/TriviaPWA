@@ -72,14 +72,13 @@ async function fetchAndReturnImageUrl(query) {
 
 function displayQuestion(index) {
     let timerElement = document.getElementById('timer');
-    timerElement.style.display = 'block'; // Show the timer when displaying a question
-    answerSelected = false; // Reset answer selection flag
+    timerElement.style.display = 'block'; 
+    answerSelected = false; 
 
-    // Reset timeLeft to 15 for each new question
     timeLeft = 15;
 
     let questionsList = document.getElementById("questions-list");
-    questionsList.innerHTML = ""; // Clear previous content
+    questionsList.innerHTML = "";
     let question = questionsData[index];
     let questionDiv = document.createElement("div");
     questionDiv.className = "question-card";
@@ -96,7 +95,7 @@ function displayQuestion(index) {
         answerButton.innerHTML = answer;
         answerButton.className = "answer-button";
         answerButton.onclick = () => {
-            answerSelected = true; // Set the flag to true when an answer is selected
+            answerSelected = true; 
             clearInterval(timerId);
             showFeedback(answer, question.correct_answer, questionDiv);
             timerElement.style.display = 'none';
@@ -108,8 +107,8 @@ function displayQuestion(index) {
 }
 
 function startTimer(duration, display) {
-    timeLeft = duration; // Reset the timeLeft for each new question
-    display.textContent = timeLeft; // Update the display initially
+    timeLeft = duration; 
+    display.textContent = timeLeft; 
 
     timerId = setInterval(function () {
         display.textContent = timeLeft;
@@ -117,7 +116,7 @@ function startTimer(duration, display) {
             clearInterval(timerId);
             if (!answerSelected) {
                 displayTimeOutFeedback(questionsData[currentQuestionIndex], document.querySelector('.question-card'));
-                display.style.display = 'none'; // Hide timer after time out
+                display.style.display = 'none'; 
             } else {
                 nextQuestion();
             }
@@ -139,7 +138,7 @@ function displayTimeOutFeedback(question, questionDiv) {
     const feedbackDiv = document.createElement("div");
     feedbackDiv.className = "feedback-card";
     feedbackDiv.innerHTML = `<h2>Time's up!</h2><p>The correct answer was: ${question.correct_answer}</p>`;
-    questionDiv.innerHTML = ""; // Clear the question content
+    questionDiv.innerHTML = "";
     questionDiv.appendChild(feedbackDiv);
     const proceedButton = document.createElement("button");
     proceedButton.innerHTML = "Next Question";
@@ -184,7 +183,6 @@ function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
     questionDiv.appendChild(proceedButton);
 }
 
-
 function shuffleAnswers(answers) {
     for (let i = answers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -194,37 +192,31 @@ function shuffleAnswers(answers) {
 }
 
 function showFinalScreen() {
-    clearInterval(timerId); // Stop any running timer
-    document.getElementById('timer').style.display = 'none'; // Hide the timer display
+    clearInterval(timerId);
+    document.getElementById('timer').style.display = 'none'; 
 
-    // Access the quiz questions list container
     let questionsList = document.getElementById("questions-list");
 
-    // Show the completion message and total score
     questionsList.innerHTML = `<h2>Quiz Completed!</h2><p>Your total score: ${score}</p>`;
 
-    // Create a button to reset the game
     const resetButton = document.createElement("button");
     resetButton.innerHTML = "Start Again";
-    resetButton.className = "reset-button"; // Optional: Assign a class for styling
+    resetButton.className = "reset-button"; 
     resetButton.onclick = function() {
         resetGame();
     };
 
-    // Add the reset button to the screen
     questionsList.appendChild(resetButton);
 
 }
 
 function resetGame() {
-    currentQuestionIndex = 0; // Reset the question index
-    score = 0; // Reset the score
-    questionsData = []; // Optionally clear the previous questions data
-    document.getElementById("trivia-form").style.display = 'block'; // Show the form again
-    document.getElementById("questions-list").innerHTML = ''; // Clear the questions list
+    currentQuestionIndex = 0;
+    score = 0; 
+    questionsData = []; 
+    document.getElementById("trivia-form").style.display = 'block';
+    document.getElementById("questions-list").innerHTML = ''; 
 }
-
-
 
 async function fetchPexelsData(search) {
     let url = `https://api.pexels.com/v1/search?per_page=1&query=${search}`;
@@ -252,15 +244,11 @@ function extractKeywordsWithPriority(questionText) {
     return filteredWords.slice(0, 3).join(" ") || "trivia";
 }
 
-// Initialize functions on page load
 window.onload = function () {
     document.getElementById('timer').style.display = 'none'; 
     fetchCategories();
     handleFormSubmit();
 };
-
-
-
 
 // handle install prompt
 let deferredPrompt;
