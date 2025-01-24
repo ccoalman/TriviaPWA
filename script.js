@@ -75,6 +75,9 @@ function displayQuestion(index) {
     timerElement.style.display = 'block'; // Show the timer when displaying a question
     answerSelected = false; // Reset answer selection flag
 
+    // Reset timeLeft to 15 for each new question
+    timeLeft = 15;
+
     let questionsList = document.getElementById("questions-list");
     questionsList.innerHTML = ""; // Clear previous content
     let question = questionsData[index];
@@ -104,19 +107,38 @@ function displayQuestion(index) {
     startTimer(timeLeft, timerElement);
 }
 
+// function startTimer(duration, display) {
+//     let timer = duration, seconds;
+//     timerId = setInterval(function () {
+//         seconds = parseInt(timer % 60, 10);
+//         display.textContent = seconds;
+//         if (--timer < 0) {
+//             clearInterval(timerId);
+//             if (!answerSelected) {
+//                 displayTimeOutFeedback(questionsData[currentQuestionIndex], document.querySelector('.question-card'));
+//             } else {
+//                 nextQuestion();
+//             }
+//         }
+//     }, 1000);
+// }
+
 function startTimer(duration, display) {
-    let timer = duration, seconds;
+    timeLeft = duration; // Reset the timeLeft for each new question
+    display.textContent = timeLeft; // Update the display initially
+
     timerId = setInterval(function () {
-        seconds = parseInt(timer % 60, 10);
-        display.textContent = seconds;
-        if (--timer < 0) {
+        display.textContent = timeLeft;
+        if (timeLeft <= 0) {
             clearInterval(timerId);
             if (!answerSelected) {
                 displayTimeOutFeedback(questionsData[currentQuestionIndex], document.querySelector('.question-card'));
+                display.style.display = 'none'; // Hide timer after time out
             } else {
                 nextQuestion();
             }
         }
+        timeLeft--; // Decrement timeLeft
     }, 1000);
 }
 
@@ -149,17 +171,44 @@ function displayTimeOutFeedback(question, questionDiv) {
     questionDiv.appendChild(proceedButton);
 }
 
+// function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
+//     const feedbackDiv = document.createElement("div");
+//     feedbackDiv.className = "feedback-card";
+//     if (selectedAnswer === correctAnswer) {
+//         feedbackDiv.innerHTML = `<h2>Correct!</h2>`;
+//     } else {
+//         feedbackDiv.innerHTML = `<h2>Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
+//     }
+//     questionDiv.innerHTML = "";
+//     questionDiv.appendChild(feedbackDiv);
+//     const proceedButton = document.createElement("button");
+//     proceedButton.innerHTML = "Next Question";
+//     proceedButton.onclick = () => {
+//         if (currentQuestionIndex < questionsData.length - 1) {
+//             currentQuestionIndex++;
+//             displayQuestion(currentQuestionIndex);
+//         } else {
+//             showFinalScreen();
+//         }
+//     };
+//     questionDiv.appendChild(proceedButton);
+// }
+
 function showFeedback(selectedAnswer, correctAnswer, questionDiv) {
     const feedbackDiv = document.createElement("div");
     feedbackDiv.className = "feedback-card";
 
+    let points = 0;
     if (selectedAnswer === correctAnswer) {
-        let points = Math.round(500 + ((timeLeft / 15) * 500)); // Dynamic scoring based on time left
-        score += points;
-        feedbackDiv.innerHTML = `<h2 class="correct">Correct!</h2><p class="points">You earned ${points} points!</p>`;
+        let timeUsed = 15 - timeLeft; // Calculate the time used
+        // Points decrease from 1000 to 500 over 15 seconds
+        points = Math.max(500, 1000 - ((500 / 15) * timeUsed));
+        score += points; // Update score
+        feedbackDiv.innerHTML = `<h2 class="correct">Correct!</h2><p class="points">You earned ${Math.round(points)} points!</p>`;
     } else {
         feedbackDiv.innerHTML = `<h2 class="wrong">Wrong!</h2><p>The correct answer was: ${correctAnswer}</p>`;
     }
+
 
     questionDiv.innerHTML = "";
     questionDiv.appendChild(feedbackDiv);
@@ -184,6 +233,22 @@ function shuffleAnswers(answers) {
     }
     return answers;
 }
+
+// function showFinalScreen() {
+//     clearInterval(timerId);
+//     document.getElementById('timer').style.display = 'none';
+//     let questionsList = document.getElementById("questions-list");
+//     questionsList.innerHTML = `<h2>Quiz Completed!</h2>`;
+//     document.getElementById("trivia-form").style.display = 'block';
+// }
+
+// function showFinalScreen() {
+//     clearInterval(timerId);
+//     document.getElementById('timer').style.display = 'none';
+//     let questionsList = document.getElementById("questions-list");
+//     questionsList.innerHTML = `<h2>Quiz Completed!</h2><p>Your total score: ${score}</p>`;
+//     document.getElementById("trivia-form").style.display = 'block';
+// }
 
 function showFinalScreen() {
     clearInterval(timerId); // Stop any running timer
